@@ -1,7 +1,7 @@
 from .clip.model import CLIP as originCLIP
 from .clip import tokenize
 
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -9,9 +9,27 @@ import torch.nn as nn
 from mmpretrain.registry import MODELS
 from mmpretrain.structures import DataSample
 from .base import BaseClassifier
+from ..heads.cls_head import ClsHead
+class LossHeadMixin(ClsHead):
+    def __init__(self, *args, **kwargs):
+        super(ClsHead, self).__init__()
+        
 
 @MODELS.register_module()
-class CLIPClassifier(originCLIP, BaseClassifier):
+class CLIPClassifier(originCLIP, BaseClassifier, LossHeadMixin):
+    def __init__(self, 
+            *args,
+            loss: dict = dict(type='CrossEntropyLoss', loss_weight=1.0),
+            topk: Union[int, Tuple[int]] = (1, ),
+            cal_acc: bool = False,
+            **kwargs):
+        super().__init__(*args, **kwargs)
+        if not isinstance(loss, nn.Module):
+            loss = MODELS.build(loss)
+        self.loss_module = loss
+        self.cal_acc = cal_acc
+        self.topk = topk
+
     @property
     def prompts(self):
         return self._prompts
@@ -77,10 +95,22 @@ class CLIPClassifier(originCLIP, BaseClassifier):
         Returns:
             dict[str, Tensor]: a dictionary of loss components
         """
-        img_feats = self.extract_feat(inputs)
-        text_feats = self.extract_prompts_feat()
-        logits_per_image, logits_per_text = super().forward(img_feats, text_feats)
-        breakpoint()
+        image_features = self.extract_feat(inputs)
+        text_features = self.extract_prompts_feat()
+        logits_per_image = self.compute_logits(image_features, text_features)
+
+        losses = self._get_loss(logits_per_image, data_samples)
+        return losses
+
+    def compute_logits(self, image_features, text_features):
+        # normalized features
+        image_features = image_features / image_features.norm(dim=1, keepdim=True)
+        text_features = text_features / text_features.norm(dim=1, keepdim=True)
+
+        # cosine similarity as logits
+        logit_scale = self.logit_scale.exp()
+        logits_per_image = logit_scale * image_features @ text_features.t()
+        return logits_per_image
 
     def predict(self,
                 inputs: torch.Tensor,
@@ -98,44 +128,21 @@ class CLIPClassifier(originCLIP, BaseClassifier):
         """
         image_features = self.extract_feat(inputs)
         text_features = self.extract_prompts_feat()
-        # normalized features
-        image_features = image_features / image_features.norm(dim=1, keepdim=True)
-        text_features = text_features / text_features.norm(dim=1, keepdim=True)
-
-        # cosine similarity as logits
-        logit_scale = self.logit_scale.exp()
-        logits_per_image = logit_scale * image_features @ text_features.t()
-        logits_per_text = logits_per_image.t()
-
+        logits_per_image = self.compute_logits(image_features, text_features)
         pred_scores = logits_per_image.softmax(dim=-1)
         return self._get_predictions(pred_scores, data_samples)
 
-    def _get_predictions(self, pred_scores, data_samples):
-        pred_labels = pred_scores.argmax(dim=1, keepdim=True).detach()
-
-        out_data_samples = []
-        if data_samples is None:
-            data_samples = [None for _ in range(pred_scores.size(0))]
-
-        for data_sample, score, label in zip(data_samples, pred_scores,
-                                             pred_labels):
-            if data_sample is None:
-                data_sample = DataSample()
-
-            data_sample.set_pred_score(score).set_pred_label(label)
-            out_data_samples.append(data_sample)
-        return out_data_samples
-    
     def extract_prompts_feat(self):
         if self.cache_text_feats is not None and True: #todo cache text feat
             return self.cache_text_feats
 
-        flat_prompts = [prompt for prompts in self.prompts for prompt in prompts]
-        num_classes = len(self.prompts)
-        num_templates = len(self.prompts[0])
-        text_ids = tokenize(flat_prompts).to(self.logit_scale.device)
-        text_feats = self.encode_text(text_ids).reshape(num_classes, num_templates, -1).mean(dim=1)
+        with torch.no_grad(): #todo
+            flat_prompts = [prompt for prompts in self.prompts for prompt in prompts]
+            num_classes = len(self.prompts)
+            num_templates = len(self.prompts[0])
+            text_ids = tokenize(flat_prompts).to(self.logit_scale.device)
+            text_feats = self.encode_text(text_ids).reshape(num_classes, num_templates, -1).mean(dim=1)
 
-        self.cache_text_feats = text_feats.detach()
+            self.cache_text_feats = text_feats.detach()
 
         return text_feats
