@@ -82,12 +82,16 @@ class BaseDataset(_BaseDataset):
                  test_mode: bool = False,
                  lazy_init: bool = False,
                  max_refetch: int = 1000,
-                 classes: Union[str, Sequence[str], None] = None):
+                 templates: Union[str, Sequence[str], None] = None,
+                 classes: Union[str, Sequence[str], None] = None
+                 ):
         if isinstance(data_prefix, str):
             data_prefix = dict(img_path=expanduser(data_prefix))
 
         ann_file = expanduser(ann_file)
         metainfo = self._compat_classes(metainfo, classes)
+        metainfo = self._compat_templates(metainfo, templates)
+        self.prompts = self._generate_prompts(metainfo)
 
         transforms = []
         for transform in pipeline:
@@ -169,6 +173,39 @@ class BaseDataset(_BaseDataset):
             metainfo = {'classes': tuple(class_names), **metainfo}
 
         return metainfo
+
+    def _compat_templates(self, metainfo, templates):
+        """Merge the old style ``classes`` arguments to ``metainfo``."""
+        if isinstance(templates, str):
+            # take it as a file path
+            templates_str = mmengine.list_from_file(expanduser(templates))
+        elif isinstance(templates, (tuple, list)):
+            templates_str = templates
+        elif templates is not None:
+            raise ValueError(f'Unsupported type {type(templates)} of templates.')
+
+        if metainfo is None:
+            metainfo = {}
+
+        if templates is not None:
+            metainfo = {'templates': tuple(templates_str), **metainfo}
+
+        return metainfo
+    
+    def _generate_prompts(self, metainfo):
+        """Generate prompts from metainfo."""
+        if 'templates' in metainfo:
+            assert 'classes' in metainfo, 'classes must be specified with templates'
+            prompts = []
+            for cls in metainfo['classes']:
+                prompts_per_cls = []
+                for template in metainfo['templates']:
+                    single_prompt = template.format(cls)
+                    prompts_per_cls.append(single_prompt)
+                prompts.append(prompts_per_cls)
+            return prompts
+        else:
+            return None
 
     def full_init(self):
         """Load annotation file and set ``BaseDataset._fully_initialized`` to
