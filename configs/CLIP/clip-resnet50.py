@@ -1,0 +1,16 @@
+model = dict(
+    type='CLIPClassifier',
+    embed_dim = 1024, 
+    image_resolution = 224,
+    vision_layers = (3, 4, 6, 3),
+    vision_width = 64,
+    vision_patch_size = None,
+    context_length = 77,
+    vocab_size = 49408,
+    transformer_width = 512,
+    transformer_heads = 8,
+    transformer_layers = 12,
+)
+custom_hooks = [
+    dict(type='ClipSetPrompts')
+]
