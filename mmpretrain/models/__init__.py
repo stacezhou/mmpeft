@@ -11,6 +11,7 @@ from .retrievers import *  # noqa: F401,F403
 from .selfsup import *  # noqa: F401,F403
 from .tta import *  # noqa: F401,F403
 from .utils import *  # noqa: F401,F403
+from .peft import *
 
 __all__ = [
     'BACKBONES', 'HEADS', 'NECKS', 'LOSSES', 'CLASSIFIERS', 'build_backbone',

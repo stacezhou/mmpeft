@@ -5,3 +5,10 @@ _base_ = [
     '_base_/default_runtime.py'
 ]
 load_from = 'data/clip-ViT-B-32.pth'
+model = dict(
+    peft = dict(
+        type = 'LoRA',
+        rank = 2,
+        scale = 2,
+    )
+)

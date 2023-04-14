@@ -8,7 +8,7 @@ import mmengine
 from mmengine.config import Config, ConfigDict, DictAction
 from mmengine.evaluator import DumpResults
 from mmengine.runner import Runner
-
+from mmpretrain.models import MODELS # <--- this is the line that make peft work
 
 def parse_args():
     parser = argparse.ArgumentParser(

@@ -7,6 +7,11 @@ HEADS = MODELS
 LOSSES = MODELS
 CLASSIFIERS = MODELS
 RETRIEVER = MODELS
+PEFT = MODELS
+
+def build_peft(cfg):
+    """Build peft."""
+    return PEFT.build(cfg)
 
 
 def build_backbone(cfg):

@@ -8,6 +8,7 @@ from mmengine.config import Config, ConfigDict, DictAction
 from mmengine.runner import Runner
 from mmengine.utils import digit_version
 from mmengine.utils.dl_utils import TORCH_VERSION
+from mmpretrain.models import MODELS # <--- this is the line that make peft work
 
 
 def parse_args():
