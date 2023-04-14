@@ -15,7 +15,9 @@ class BasePEFT:
         for param in module.parameters():
             if param.requires_grad:
                 params_to_update.append(param)
-        print(f"Params count to update: {sum(p.numel() for p in params_to_update)}")
+        from mmengine.logging import MMLogger
+        logger = MMLogger.get_current_instance()
+        logger.info(f"Training params count: {sum(p.numel() for p in params_to_update)}")
         return module
     
     def add_parameter(self, module, child, path):
