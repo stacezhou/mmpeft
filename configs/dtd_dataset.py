@@ -8,27 +8,35 @@ dataset_type = 'CustomDataset'
 #     std=[51.5865, 50.847, 51.255],
 #     # loaded images are already RGB format
 #     to_rgb=False)
+img_norm_cfg = dict(
+    mean=[0.48145466 * 255, 0.4578275 * 255, 0.40821073 * 255],
+    std=[0.26862954 * 255, 0.26130258 * 255, 0.27577711 * 255],
+    to_rgb=True
+)
 classes = ['banded','blotchy','braided','bubbly','bumpy','chequered','cobwebbed','cracked','crosshatched','crystalline','dotted','fibrous','flecked','freckled','frilly','gauzy','grid','grooved','honeycombed','interlaced','knitted','lacelike','lined','marbled','matted','meshed','paisley','perforated','pitted','pleated','polka-dotted','porous','potholed','scaly','smeared','spiralled','sprinkled','stained','stratified','striped','studded','swirly','veined','waffled','woven','wrinkled','zigzagged']
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='RandomCrop', crop_size=224, padding=4),
     dict(type='RandomFlip', prob=0.5, direction='horizontal'),
+    dict(type='Normalize', **img_norm_cfg),
     dict(type='PackInputs'),
 ]
 
 test_pipeline = [
     dict(type='LoadImageFromFile'),
+    dict(type='Resize', scale=224, interpolation='bicubic', backend='pillow'),
     dict(type='CenterCrop', crop_size=224),
+    dict(type='Normalize', **img_norm_cfg),
     dict(type='PackInputs'),
 ]
-
+import mmcv
 train_dataloader = dict(
     batch_size=16,
     num_workers=2,
     dataset=dict(
         type=dataset_type,
         data_root='data/dtd/images/train',
-        templates=['a texture of {}.'],
+        templates=['{} texture.'],
         classes = classes,
         test_mode=False,
         pipeline=train_pipeline),
@@ -40,8 +48,8 @@ val_dataloader = dict(
     num_workers=2,
     dataset=dict(
         type=dataset_type,
-        data_root='data/dtd/images/val',
-        templates=['a texture of {}.'],
+        data_root='data/dtd/images/test',
+        templates=['{} texture.'],
         classes = classes,
         test_mode=True,
         pipeline=test_pipeline),
