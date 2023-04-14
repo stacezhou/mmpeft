@@ -1,5 +1,5 @@
 dataset_type = 'CustomDataset'
-batch_size = 256
+batch_size = 128
 img_norm_cfg = dict(
     mean=[0.48145466 * 255, 0.4578275 * 255, 0.40821073 * 255],
     std=[0.26862954 * 255, 0.26130258 * 255, 0.27577711 * 255],
