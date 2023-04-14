@@ -1,13 +1,5 @@
 dataset_type = 'CustomDataset'
-
-# dataset settings
-# data_preprocessor = dict(
-#     num_classes=47,
-#     # RGB format normalization parameters
-#     mean=[125.307, 122.961, 113.8575],
-#     std=[51.5865, 50.847, 51.255],
-#     # loaded images are already RGB format
-#     to_rgb=False)
+batch_size = 256
 img_norm_cfg = dict(
     mean=[0.48145466 * 255, 0.4578275 * 255, 0.40821073 * 255],
     std=[0.26862954 * 255, 0.26130258 * 255, 0.27577711 * 255],
@@ -29,9 +21,8 @@ test_pipeline = [
     dict(type='Normalize', **img_norm_cfg),
     dict(type='PackInputs'),
 ]
-import mmcv
 train_dataloader = dict(
-    batch_size=16,
+    batch_size=batch_size,
     num_workers=2,
     dataset=dict(
         type=dataset_type,
@@ -44,7 +35,7 @@ train_dataloader = dict(
 )
 
 val_dataloader = dict(
-    batch_size=16,
+    batch_size=batch_size,
     num_workers=2,
     dataset=dict(
         type=dataset_type,
