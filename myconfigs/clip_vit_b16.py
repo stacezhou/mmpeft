@@ -10,5 +10,6 @@ model = dict(
         type = 'LoRA',
         rank = 2,
         scale = 2,
+        pattern = 'visual|transomfer',
     )
 )

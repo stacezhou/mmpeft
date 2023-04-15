@@ -1,24 +1,43 @@
 search_space:
+  randomness.seed:
+    _type: choice
+    _value: [0, 10, 100, 1000, 10000]
   optim_wrapper.optimizer.lr:
-    _type: loguniform
-    _value: [0.0001, 0.1 ]
+    # _type: loguniform
+    # _value: [0.0001, 0.1 ]
+    # _type: qloguniform
+    # _value: [0.0015, 0.0005, 0.0001] # low, high, q
+    _type: choice
+    _value: [0.0001, 0.001, 0.002]
   model.peft.rank:
     _type: choice
-    _value: [1, 2, 4, 8, 16, 32, 64, 128, 256]
+    _value: [8, 128, 768]
   model.peft.scale:
     _type: choice
-    _value: [1, 2, 4, 8, 16, 32, 64, 128, 256]
+    _value: [1, 32, 256]
   batch_size:
     _type: choice
-    _value: [16, 32, 64, 128]
-trial_command: python tools/train.py myconfigs/clip_vit_b32.py --work-dir work_dirs/clip_vit_b32_nni --cfg-options default_hooks.checkpoint.interval=20 default_hooks.checkpoint.save_last=False load_from=data/clip-ViT-B-32.pth train_cfg.max_epochs=10 train_dataloader.dataset.data_root=data/dtd/images/fewshot_train16_A
+    _value: [32, 128]
+trial_command: "
+python tools/train.py myconfigs/clip_vit_b32.py \
+--work-dir work_dirs/clip_vit_b32_nni_1 \
+--cfg-options \
+default_hooks.checkpoint.interval=20 \
+default_hooks.checkpoint.save_last=False \
+load_from=data/clip-ViT-B-32.pth \
+train_cfg.max_epochs=10 \
+train_dataloader.dataset.data_root=data/dtd/images/fewshot_train16_A \
+"
+
 trial_code_directory: .
 trial_gpu_number: 1
 trial_concurrency: 3
 # max_trial_number: 80
 
 tuner:
-  name: TPE
+  # name: TPE
+  # name: GridSearch
+  name: Evolution
   class_args:
     optimize_mode: maximize
 

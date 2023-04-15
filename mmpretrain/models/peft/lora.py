@@ -51,15 +51,18 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional, Tuple
 from torch import Tensor
+import regex as re
+
 @PEFT.register_module()
 class LoRA(BasePEFT):
-    def __init__(self, rank, scale=1.0, **kwargs):
+    def __init__(self, rank, scale, pattern, **kwargs):
         super(LoRA, self).__init__(**kwargs)
         self.rank = rank
         self.scale = scale
+        self.pattern = re.compile(pattern)
     
     def add_parameter(self, module, child, path):
-        if type(module) == nn.MultiheadAttention and 'visual' in path:
+        if type(module) == nn.MultiheadAttention and bool(self.pattern.search(path)):
             if module._qkv_same_embed_dim:
                 dim_q = dim_k = module.embed_dim
             else:
@@ -77,7 +80,7 @@ class LoRA(BasePEFT):
             nn.init.zeros_(module.Wkb)
 
     def change_forward(self, module, child, path):
-        if type(module) == nn.MultiheadAttention and 'visual' in path:
+        if type(module) == nn.MultiheadAttention and bool(self.pattern.search(path)):
             module.forward = lora_MHA_forward.__get__(module, nn.MultiheadAttention)
 
 
