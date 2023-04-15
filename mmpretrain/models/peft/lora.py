@@ -11,14 +11,19 @@ class BasePEFT:
 
         self._recur_add_parameter(module)
         self._recur_change_forward(module)
+        self.count_train_params(module)
+        return module
+
+    def count_train_params(self, module):
         params_to_update = []
         for param in module.parameters():
             if param.requires_grad:
                 params_to_update.append(param)
         from mmengine.logging import MMLogger
         logger = MMLogger.get_current_instance()
-        logger.info(f"Training params count: {sum(p.numel() for p in params_to_update)}")
-        return module
+        total_params = sum(p.numel() for p in module.parameters())
+        logger.info(f"Training params count: {total_params}")
+        module._num_trainable_params = total_params
     
     def add_parameter(self, module, child, path):
         # Add parameters to the module

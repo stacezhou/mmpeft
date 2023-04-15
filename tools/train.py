@@ -145,7 +145,12 @@ def main():
 
     # load config
     cfg = Config.fromfile(args.config)
-
+    try:
+        import nni
+        params = nni.get_next_parameter()
+        cfg.merge_from_dict(params)
+    except:
+        pass
     # merge cli arguments to config
     cfg = merge_args(cfg, args)
 

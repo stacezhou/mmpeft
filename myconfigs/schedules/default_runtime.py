@@ -13,7 +13,7 @@ default_hooks = dict(
     param_scheduler=dict(type='ParamSchedulerHook'),
 
     # save checkpoint per epoch.
-    checkpoint=dict(type='CheckpointHook', interval=1),
+    checkpoint=dict(type='CheckpointHook', interval=10),
 
     # set sampler seed in distributed evrionment.
     sampler_seed=dict(type='DistSamplerSeedHook'),
@@ -35,7 +35,14 @@ env_cfg = dict(
 )
 
 # set visualizer
-vis_backends = [dict(type='LocalVisBackend')]
+vis_backends = [
+    dict(type='LocalVisBackend'),
+    dict(type='NNIVisBackend'),
+    # dict(
+    #     type='WandbVisBackend',
+    #     init_kwargs=dict(project='mmpeft')
+    # )
+]
 visualizer = dict(type='UniversalVisualizer', vis_backends=vis_backends)
 
 # set log level
@@ -49,3 +56,7 @@ resume = False
 
 # Defaults to use random seed and disable `deterministic`
 randomness = dict(seed=None, deterministic=False)
+custom_hooks = [
+    dict(type='ClipSetPrompts'),
+    dict(type='NNIHook')
+]
