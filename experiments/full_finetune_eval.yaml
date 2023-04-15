@@ -42,6 +42,7 @@ trial_command: >
   load_from=data/clip-ViT-B-32.pth 
   default_hooks.checkpoint.interval=-1
   default_hooks.checkpoint.save_last=True 
+  visualizer.vis_backends.2.init_kwargs.project=fft_eval
 
 trial_code_directory: /home/zh21/mmpretrain
 trial_gpu_number: 1
