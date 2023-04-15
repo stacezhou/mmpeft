@@ -48,7 +48,3 @@ class NNIVisBackend(BaseVisBackend):
             value = scalar_dict[self.report_key]
             self._nni.report_intermediate_result(value)
             self._final_report = value
-
-    def close(self) -> None:
-        self._nni.report_final_result(self._final_report)
-        return super().close()
