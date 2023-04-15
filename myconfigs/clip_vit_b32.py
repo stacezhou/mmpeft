@@ -6,9 +6,9 @@ _base_ = [
 ]
 load_from = 'data/clip-ViT-B-32.pth'
 model = dict(
-    peft = dict(
-        type = 'LoRA',
-        rank = 2,
-        scale = 2,
-    )
+    # peft = dict(
+    #     type = 'LoRA',
+    #     rank = 2,
+    #     scale = 2,
+    # )
 )
