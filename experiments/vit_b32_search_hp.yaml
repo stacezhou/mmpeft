@@ -1,0 +1,63 @@
+search_space:
+  train_dataloader.dataset.data_root:
+    - data/dtd/images/fewshot_train16_A
+    # - data/dtd/images/fewshot_train16_B
+    # - data/dtd/images/fewshot_train16_C
+    # - data/dtd/images/fewshot_train1_A
+    # - data/dtd/images/fewshot_train1_B
+    # - data/dtd/images/fewshot_train1_C
+    # - data/dtd/images/fewshot_train4_A
+    # - data/dtd/images/fewshot_train4_B
+    # - data/dtd/images/fewshot_train4_C
+    # - data/dtd/images/train
+
+  randomness.seed:
+    - 1
+      # - 10
+      # - 100
+
+  optim_wrapper.optimizer.lr:
+    - 0.0001
+    - 0.005
+    - 0.001
+
+  train_dataloader.batch_size:
+    # - 128
+    - 256
+  
+  model.peft:
+    - _name: LoRA
+      type: LoRA
+      pattern: visual
+      rank: 
+        # - 2
+        - 8
+        # - 64
+        - 128
+      scale: 
+        # - 2
+        - 8
+        # - 64
+        - 128
+
+trial_command: >
+  python tools/train.py myconfigs/clip_vit_b32.py 
+  --work-dir work_dirs/vitb32_lora_hp_search
+  --cfg-options 
+  load_from=data/clip-ViT-B-32.pth 
+  default_hooks.checkpoint.interval=-1 
+  default_hooks.checkpoint.save_last=False 
+
+trial_code_directory: /home/zh21/mmpretrain
+trial_gpu_number: 1
+trial_concurrency: 4
+
+tuner:
+  name: GridSearch
+  class_args:
+    optimize_mode: maximize
+
+training_service:
+  platform: local
+  # gpuIndices: [2,3]
+  use_active_gpu: false

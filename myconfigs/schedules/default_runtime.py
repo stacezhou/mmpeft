@@ -38,10 +38,10 @@ env_cfg = dict(
 vis_backends = [
     dict(type='LocalVisBackend'),
     dict(type='NNIVisBackend'),
-    dict(
-        type='WandbVisBackend',
-        init_kwargs=dict(project='mmpeft')
-    )
+    # dict(
+    #     type='WandbVisBackend',
+    #     init_kwargs=dict(project='mmpeft')
+    # )
 ]
 visualizer = dict(type='UniversalVisualizer', vis_backends=vis_backends)
 
