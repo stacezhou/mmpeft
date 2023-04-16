@@ -7,7 +7,7 @@ def format_str_to_list(space):
         for key,value in space.items():
             if key == '_name':
                 continue
-            elif isinstance(value, str):
+            elif isinstance(value, str) or isinstance(value, int) or isinstance(value, float):
                 space[key] = [value]
             elif isinstance(value, list):
                 space[key] = [format_str_to_list(v) for v in value]
@@ -40,7 +40,6 @@ def main():
     cfg['search_space'] = space
     filename = '/tmp/nni_exp_config_' + str(uuid.uuid4()) + '.yml'
     yaml.dump(cfg, open(filename, 'w'))
-
     print(filename)
 
 main()

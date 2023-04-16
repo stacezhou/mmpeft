@@ -16,20 +16,12 @@ search_space:
         - data/dtd/images/train
 
   model.peft:
-    - _name: Empty # full model finetune
+    # - _name: Empty # full model finetune
     - _name: LoRA
       type: LoRA
       pattern: visual
-      rank: 
-        - 2
-        - 8
-        - 64
-        - 128
-      scale: 
-        - 2
-        - 8
-        - 64
-        - 128
+      rank: 128
+      scale: 128
 
   randomness.seed:
     - 1
@@ -37,21 +29,18 @@ search_space:
     - 100
 
   optim_wrapper.optimizer.lr:
-    - 0.0001
-    - 0.005
     - 0.001
 
   train_dataloader.batch_size:
-    - 128
     - 256
 
-trial_command: >
-  python tools/train.py myconfigs/clip_vit_b33.py 
-  --work_dir work_dirs/vitb32_eval
-  --cfg-options 
-    load_from=data/clip-ViT-B-32.pth 
-    default_hooks.checkpoint.interval=-1 
-    default_hooks.checkpoint.save_last=True
+trial_command: 
+  python tools/train.py myconfigs/clip_vit_b32.py 
+  --work-dir work_dirs/vitb32_eval
+  --cfg-options
+  load_from=data/clip-ViT-B-32.pth
+  default_hooks.checkpoint.interval=-1
+  default_hooks.checkpoint.save_last=True
 
 trial_code_directory: /home/zh21/mmpretrain
 trial_gpu_number: 1
