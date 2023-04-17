@@ -6,11 +6,11 @@ _base_ = [
 ]
 # load_from = 'data/clip-ViT-B-16.pth'
 model = dict(
-    peft = dict(
-        type = 'LoRA',
-        rank = 128,
-        scale = 128,
-        # pattern = 'visual|transomfer',
-        pattern = 'visual', # 只微调视觉分支
-    )
+    # peft = dict(
+    #     type = 'LoRA',
+    #     rank = 128,
+    #     scale = 128,
+    #     # pattern = 'visual|transomfer',
+    #     pattern = 'visual', # 只微调视觉分支
+    # )
 )
