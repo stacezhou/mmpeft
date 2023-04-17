@@ -11,7 +11,12 @@ pip install nni==2.10
 pip install "typeguard<3"
 
 # todo
-修改了 mmengine.hooks.checkpoint_hook.py:255 行     self.out_dir = runner._log_dir
+修改了 mmengine.hooks.checkpoint_hook.py:255 行    
+self.out_dir = runner._log_dir 
+解决 nni 并行多组程序时，模型权重保存重复的问题。
+但这样会导致不用 nni 时，无法 resume 训练。因为 log_dir 会变。
+不用 nni 可以不管这部分。
+
 
 # convert weight
 python tools/convert_weight.py --arch 'ViT-B/32' --save_path data/clip-ViT-B-32.pth
@@ -38,7 +43,7 @@ train_dataloader.batch_size=128 \
 optim_wrapper.optimizer.lr=0.001 \
 default_hooks.checkpoint.interval=2 \
 default_hooks.checkpoint.save_last=True \
-train_dataloader.dataset.data_root=data/imagenet/images/fewshot_train16_A \
+train_dataloader.dataset.data_root=data/imagenet/images/train \
 val_dataloader.dataset.data_root=data/imagenet/images/val \
 test_dataloader.dataset.data_root=data/imagenet/images/val
 
