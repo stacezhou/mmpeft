@@ -145,7 +145,30 @@ def main():
 
     # load config
     cfg = Config.fromfile(args.config)
-
+    try:
+        import nni
+        params = nni.get_next_parameter()
+        # get logger 
+        from mmengine.logging import MMLogger
+        logger = MMLogger.get_current_instance()
+        logger.info(params)
+        nested_keys = []
+        for key in params:
+            if isinstance(params[key], dict):
+                nested_keys.append(key)
+        for key in nested_keys:
+            sub_dict = params.pop(key) 
+            for k,v in sub_dict.items():
+                if k == '_name': 
+                    continue
+                elif key.startswith('_'):
+                    params[k] = v
+                else:
+                    params[key + '.' + k] = v
+        logger.info(params)
+        cfg.merge_from_dict(params)
+    except:
+        pass
     # merge cli arguments to config
     cfg = merge_args(cfg, args)
 

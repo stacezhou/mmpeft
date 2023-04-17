@@ -11,6 +11,3 @@ model = dict(
     transformer_heads = 8,
     transformer_layers = 12,
 )
-custom_hooks = [
-    dict(type='ClipSetPrompts')
-]

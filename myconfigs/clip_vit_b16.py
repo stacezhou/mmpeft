@@ -1,10 +1,10 @@
 _base_ = [
     'datasets/imagenet_224.py',
-    'CLIP/clip-vit-base-p32.py',
+    'CLIP/clip-vit-base-p16.py',
     'schedules/default_runtime.py',
     'schedules/default_schedule.py'
 ]
-# load_from = 'data/clip-ViT-B-32.pth'
+# load_from = 'data/clip-ViT-B-16.pth'
 model = dict(
     peft = dict(
         type = 'LoRA',

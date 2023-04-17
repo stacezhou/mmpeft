@@ -11,12 +11,19 @@ class BasePEFT:
 
         self._recur_add_parameter(module)
         self._recur_change_forward(module)
+        self.count_train_params(module)
+        return module
+
+    def count_train_params(self, module):
         params_to_update = []
         for param in module.parameters():
             if param.requires_grad:
                 params_to_update.append(param)
-        print(f"Params count to update: {sum(p.numel() for p in params_to_update)}")
-        return module
+        from mmengine.logging import MMLogger
+        logger = MMLogger.get_current_instance()
+        total_params = sum(p.numel() for p in module.parameters())
+        logger.info(f"Training params count: {total_params}")
+        module._num_trainable_params = total_params
     
     def add_parameter(self, module, child, path):
         # Add parameters to the module
@@ -44,15 +51,18 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional, Tuple
 from torch import Tensor
+import regex as re
+
 @PEFT.register_module()
 class LoRA(BasePEFT):
-    def __init__(self, rank, scale=1.0, **kwargs):
+    def __init__(self, rank, scale, pattern, **kwargs):
         super(LoRA, self).__init__(**kwargs)
         self.rank = rank
         self.scale = scale
+        self.pattern = re.compile(pattern)
     
     def add_parameter(self, module, child, path):
-        if type(module) == nn.MultiheadAttention and 'visual' in path:
+        if type(module) == nn.MultiheadAttention and bool(self.pattern.search(path)):
             if module._qkv_same_embed_dim:
                 dim_q = dim_k = module.embed_dim
             else:
@@ -70,7 +80,7 @@ class LoRA(BasePEFT):
             nn.init.zeros_(module.Wkb)
 
     def change_forward(self, module, child, path):
-        if type(module) == nn.MultiheadAttention and 'visual' in path:
+        if type(module) == nn.MultiheadAttention and bool(self.pattern.search(path)):
             module.forward = lora_MHA_forward.__get__(module, nn.MultiheadAttention)
 
 

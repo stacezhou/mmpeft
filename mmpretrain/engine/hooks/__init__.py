@@ -10,11 +10,13 @@ from .swav_hook import SwAVHook
 from .switch_recipe_hook import SwitchRecipeHook
 from .visualization_hook import VisualizationHook
 from .clip_set_prompts import ClipSetPrompts
+from .nni_hook import NNIHook
 
 __all__ = [
     'ClassNumCheckHook', 'PreciseBNHook', 'VisualizationHook',
     'SwitchRecipeHook', 'PrepareProtoBeforeValLoopHook',
     'SetAdaptiveMarginsHook', 'EMAHook', 'SimSiamHook', 'DenseCLHook',
     'ClipSetPrompts',
+    'NNIHook',
     'SwAVHook'
 ]
