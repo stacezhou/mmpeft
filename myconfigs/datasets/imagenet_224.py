@@ -13,6 +13,7 @@ img_norm_cfg = dict(
 )
 train_pipeline = [
     dict(type='LoadImageFromFile'),
+    dict(type='Resize', scale=input_size, interpolation='bicubic', backend='pillow'),
     dict(type='RandomCrop', crop_size=input_size, padding=4),
     dict(type='RandomFlip', prob=0.5, direction='horizontal'),
     dict(type='Normalize', **img_norm_cfg),
