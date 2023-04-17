@@ -141,7 +141,12 @@ class CLIPClassifier(originCLIP, BaseClassifier, LossHeadMixin):
             num_classes = len(self.prompts)
             num_templates = len(self.prompts[0])
             text_ids = tokenize(flat_prompts).to(self.logit_scale.device)
-            text_feats = self.encode_text(text_ids).reshape(num_classes, num_templates, -1).mean(dim=1)
+            all_text_feats = []
+            for i in range(text_ids.shape[0] // 1000 + 1):
+                text_feat = self.encode_text(text_ids[i*1000:(i+1)*1000])
+                all_text_feats.append(text_feat)
+            text_feats = torch.cat(all_text_feats, dim=0)
+            text_feats = text_feats.reshape(num_classes, num_templates, -1).mean(dim=1)
 
             self.cache_text_feats = text_feats.detach()
 

@@ -4,15 +4,15 @@ search_space:
       val_dataloader.dataset.data_root: 
         - data/dtd/images/test
       train_dataloader.dataset.data_root:
-        - data/dtd/images/fewshot_train16_A
-        - data/dtd/images/fewshot_train16_B
-        - data/dtd/images/fewshot_train16_C
-        - data/dtd/images/fewshot_train1_A
-        - data/dtd/images/fewshot_train1_B
-        - data/dtd/images/fewshot_train1_C
-        - data/dtd/images/fewshot_train4_A
-        - data/dtd/images/fewshot_train4_B
-        - data/dtd/images/fewshot_train4_C
+        # - data/dtd/images/fewshot_train16_A
+        # - data/dtd/images/fewshot_train16_B
+        # - data/dtd/images/fewshot_train16_C
+        # - data/dtd/images/fewshot_train1_A
+        # - data/dtd/images/fewshot_train1_B
+        # - data/dtd/images/fewshot_train1_C
+        # - data/dtd/images/fewshot_train4_A
+        # - data/dtd/images/fewshot_train4_B
+        # - data/dtd/images/fewshot_train4_C
         - data/dtd/images/train
 
   model.peft:

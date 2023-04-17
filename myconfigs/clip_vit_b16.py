@@ -1,15 +1,16 @@
 _base_ = [
-    'datasets/dtd_dataset_224.py',
+    'datasets/imagenet_224.py',
     'CLIP/clip-vit-base-p16.py',
     'schedules/default_runtime.py',
     'schedules/default_schedule.py'
 ]
-load_from = 'data/clip-ViT-B-32.pth'
+# load_from = 'data/clip-ViT-B-16.pth'
 model = dict(
-#     peft = dict(
-#         type = 'LoRA',
-#         rank = 2,
-#         scale = 2,
-#         pattern = 'visual|transomfer',
-#     )
+    peft = dict(
+        type = 'LoRA',
+        rank = 128,
+        scale = 128,
+        # pattern = 'visual|transomfer',
+        pattern = 'visual', # 只微调视觉分支
+    )
 )

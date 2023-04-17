@@ -37,7 +37,7 @@ env_cfg = dict(
 # set visualizer
 vis_backends = [
     dict(type='LocalVisBackend'),
-    dict(type='NNIVisBackend'),
+    # dict(type='NNIVisBackend'),
     # dict(
     #     type='WandbVisBackend',
     #     init_kwargs=dict(project='mmpeft')
@@ -58,5 +58,5 @@ resume = False
 randomness = dict(seed=None, deterministic=False)
 custom_hooks = [
     dict(type='ClipSetPrompts'),
-    dict(type='NNIHook')
+    # dict(type='NNIHook')
 ]

@@ -161,7 +161,7 @@ def main():
             for k,v in sub_dict.items():
                 if k == '_name': 
                     continue
-                elif k.startswith('_'):
+                elif key.startswith('_'):
                     params[k] = v
                 else:
                     params[key + '.' + k] = v
