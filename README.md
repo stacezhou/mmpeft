@@ -54,6 +54,6 @@ train_dataloader.batch_size=128 \
 optim_wrapper.optimizer.lr=0.001 \
 default_hooks.checkpoint.interval=2 \
 default_hooks.checkpoint.save_last=True \
-train_dataloader.dataset.data_root=data/imagenet/images/val \
+train_dataloader.dataset.data_root=data/imagenet/images/train \
 val_dataloader.dataset.data_root=data/imagenet/images/val \
 test_dataloader.dataset.data_root=data/imagenet/images/val
