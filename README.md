@@ -1,7 +1,8 @@
 # 配置环境
 conda create -n mmpeft python=3.8
 conda activate mmpeft
-conda install pytorch==1.11.0 cudatoolkit=11.3 -c pytorch
+安装 pytorch 1.11.0
+<!-- conda install pytorch==1.11.0 cudatoolkit=11.3 -c pytorch -->
 pip install openmim
 mim install --no-cache-dir -e .
 pip install ftfy regex wandb
@@ -27,8 +28,9 @@ python tools/test.py myconfigs/clip_vit_b32.py data/clip-ViT-B-32.pth \
 test_dataloader.dataset.data_root=data/imagenet/images/val
 
 # multi-gpu test
-bash tools/dist_test.sh myconfigs/clip_vit_b32.py data/clip-ViT-B-32.pth 4 \
+bash tools/dist_test.sh myconfigs/clip_vit_b16.py data/clip-ViT-B-16.pth 4 \
 --cfg-options \
+test_dataloader.dataset.templates=myconfigs/datasets/imagenet_full_templates.txt \
 test_dataloader.dataset.data_root=data/imagenet/images/val
 
 # lora train

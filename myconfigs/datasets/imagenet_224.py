@@ -1,5 +1,6 @@
 dataset_type = 'CustomDataset'
 batch_size = 128
+test_batch_size = 512
 train_data_dir = 'data/imagenet/images/train'
 test_data_dir = 'data/imagenet/images/val'
 classes = 'myconfigs/datasets/imagenet_classnames.txt'
@@ -28,7 +29,7 @@ test_pipeline = [
     dict(type='PackInputs'),
 ]
 train_dataloader = dict(
-    batch_size=batch_size,
+    batch_size=test_batch_size,
     num_workers=8,
     dataset=dict(
         type=dataset_type,
@@ -41,7 +42,7 @@ train_dataloader = dict(
 )
 
 val_dataloader = dict(
-    batch_size=batch_size,
+    batch_size=test_batch_size,
     num_workers=8,
     dataset=dict(
         type=dataset_type,
