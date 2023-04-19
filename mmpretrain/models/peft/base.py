@@ -15,12 +15,12 @@ class BasePEFT:
 
     def count_train_params(self, module):
         params_to_update = []
-        for param in module.parameters():
+        for name, param in module.named_parameters():
             if param.requires_grad:
                 params_to_update.append(param)
         from mmengine.logging import MMLogger
         logger = MMLogger.get_current_instance()
-        total_params = sum(p.numel() for p in module.parameters())
+        total_params = sum(p.numel() for p in module.parameters() if p.requires_grad)
         logger.info(f"Training params count: {total_params}")
         module._num_trainable_params = total_params
     

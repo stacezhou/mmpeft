@@ -3,12 +3,10 @@ from .base import BasePEFT
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Optional, Tuple
-from torch import Tensor
 import regex as re
 import math
 class LoRAMultiheadAttention(nn.Module):
-    def __init__(self,origin_MHA, rank, scale):
+    def __init__(self, origin_MHA, rank, scale):
         super().__init__()
         self.__dict__['in_proj_weight'] = origin_MHA.in_proj_weight
         self.__dict__['in_proj_bias'] = origin_MHA.in_proj_bias
@@ -31,8 +29,8 @@ class LoRAMultiheadAttention(nn.Module):
         q,k,v = F.linear(query, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
         tgt_len, bsz, embed_dim = q.size()
         ############ lora ############
-        k += self.scale / self.rank * query @ self._ft_k_proj_a.t() @ self._ft_k_proj_b
-        v += self.scale / self.rank * query @ self._ft_v_proj_a.t() @ self._ft_v_proj_b
+        k = k + self.scale / self.rank * query @ self._ft_k_proj_a.t() @ self._ft_k_proj_b
+        v = v + self.scale / self.rank * query @ self._ft_v_proj_a.t() @ self._ft_v_proj_b
 
         ############ lora ############
         num_heads = self.n_head
