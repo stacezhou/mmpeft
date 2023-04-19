@@ -28,17 +28,28 @@ class LoRAMultiheadAttention(nn.Module):
     def forward(self, query, key, value, need_weights, attn_mask):
         q,k,v = F.linear(query, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
         tgt_len, bsz, embed_dim = q.size()
-        ############ lora ############
-        k = k + self.scale / self.rank * query @ self._ft_k_proj_a.t() @ self._ft_k_proj_b
-        v = v + self.scale / self.rank * query @ self._ft_v_proj_a.t() @ self._ft_v_proj_b
-
-        ############ lora ############
         num_heads = self.n_head
         head_dim = embed_dim // num_heads
         q = q.view(tgt_len, bsz, num_heads, head_dim).transpose(0, 2).reshape(-1, tgt_len, head_dim)  
         k = k.view(tgt_len, bsz, num_heads, head_dim).transpose(0, 2).reshape(-1, tgt_len, head_dim) 
         v = v.view(tgt_len, bsz, num_heads, head_dim).transpose(0, 2).reshape(-1, tgt_len, head_dim) 
         # (num_heads, batch_size, seq_len, head_dim)
+        ############ lora ############
+        input_q = query.view(tgt_len, bsz, num_heads, head_dim).transpose(0, 2)
+
+        k_proj_a = self._ft_k_proj_a.view(self.rank, num_heads, head_dim).transpose(0, 1)
+        k_proj_b = self._ft_k_proj_b.view(self.rank, num_heads, head_dim).transpose(0, 1)
+        delta_k_proj = k_proj_a.transpose(-2, -1) @ k_proj_b
+        delta_k = input_q @ delta_k_proj.unsqueeze(1).transpose(-2, -1)
+        k = k + self.scale / self.rank * delta_k.reshape(-1, tgt_len, head_dim)
+
+        v_proj_a = self._ft_v_proj_a.view(self.rank, num_heads, head_dim).transpose(0, 1)
+        v_proj_b = self._ft_v_proj_b.view(self.rank, num_heads, head_dim).transpose(0, 1)
+        delta_v_proj = v_proj_a.transpose(-2, -1) @ v_proj_b
+        delta_v = input_q @ delta_v_proj.unsqueeze(1).transpose(-2, -1)
+        v = v + self.scale / self.rank * delta_v.reshape(-1, tgt_len, head_dim)
+
+        ############ lora ############
 
         # Compute self-attention scores and apply mask if provided.
         scores = torch.bmm(q / math.sqrt(head_dim), k.transpose(-2, -1))
